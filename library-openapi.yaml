@@ -204,6 +204,26 @@ paths:
         404:
           description: The book was not found
 
+  /api/books/{id}/authors:
+    parameters:
+      - name: id
+        description: Book's id
+        in: path
+        required: true
+        schema:
+          type: number
+          format: int64
+    put:
+        summary: Add an author to a book
+        operationId: add-author
+        requestBody:
+          content:
+            'application/json':
+              schema:
+                $ref: "#/components/schemas/Book"
+        responses:
+          404:
+            description: The book or author was not found
 components:
   schemas:
     BaseAuthor:
