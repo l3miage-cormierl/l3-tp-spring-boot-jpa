@@ -23,8 +23,13 @@ public class BooksController {
         this.bookService = bookService;
         this.booksMapper = booksMapper;
     }
-    
-    /*Find all books, possibly filtered by name*/
+
+    /* Find all books, possibly filtered by name */
+    /*
+     * Requête qui permet de récupérer tous les livres si l'argument query et
+     * absent, ou les livres ayant le titre donné
+     * par le paramètre query
+     */
     @GetMapping("/books")
     public Collection<BookDTO> books(@RequestParam(value = "q", required = false) String query) {
         Collection<Book> books;
@@ -38,7 +43,8 @@ public class BooksController {
                 .toList();
     }
 
-    /*Get a book*/
+    /* Get a book */
+    /* Requête pour récupérer un livre par rapport à son id */
     @GetMapping("/books/{id}")
     public BookDTO book(@PathVariable("id") Long id) {
         Book book = null;
@@ -50,7 +56,11 @@ public class BooksController {
         return booksMapper.entityToDTO(book);
     }
 
-    /*Create a new book for a given author*/
+    /* Create a new book for a given author */
+    /*
+     * Requête pour ajouter un nouveau livre
+     * chemin /api/authors/{id}/books
+     */
     @PostMapping("/authors/{id}/books")
     @ResponseStatus(HttpStatus.CREATED)
     public BookDTO newBook(@PathVariable("id") Long authorId, @RequestBody BookDTO book) {
@@ -67,6 +77,18 @@ public class BooksController {
         return booksMapper.entityToDTO(newBook);
     }
 
+    /*
+     * Test avant conversion en entité pour la requete gérée par newBook()
+     * Title, langage et year sont des champs requis. Si year n'est pas donné il
+     * prend la valeur 0 par défaut et
+     * pas besoin de tester language qui prend le type french par defaut qui
+     * appartient à l'intervalle des valeurs possibles.
+     * Year doit être compris entre -9999 et 9999
+     * ISBN est un nombre entre 10 et 13 chiffres ( [1000000000 ; 9999999999999])
+     * Je sais pas si c'est une erreur mais dans l'openAPI une fois on a french et
+     * une autre fois FRENCH.
+     * Alors que le type Langage enum c'est FRENCH ou ENGLISH
+     */
     private boolean isAValidBook(BookDTO book) {
         boolean isValid = true;
         if (book.title() == null) {
@@ -83,7 +105,7 @@ public class BooksController {
         return isValid;
     }
 
-    /*Update a book*/
+    /* Update a book */
     @PutMapping("/books/{id}")
     public BookDTO updateBook(@PathVariable("id") Long authorId, @RequestBody BookDTO book) {
         // attention BookDTO.id() doit être égale à id, sinon la requête utilisateur est
@@ -101,7 +123,7 @@ public class BooksController {
         return booksMapper.entityToDTO(bookTmp);
     }
 
-    /*Delete a book*/
+    /* Delete a book */
     @DeleteMapping("/books/{id}")
     public void deleteBook(@PathVariable("id") Long id) {
         try {
@@ -113,7 +135,7 @@ public class BooksController {
         throw new ResponseStatusException(HttpStatus.NO_CONTENT);
     }
 
-    /*Add an author to a book*/
+    /* Add an author to a book */
     @PutMapping("/books/{id}/authors")
     public BookDTO addAuthor(@PathVariable("id") Long bookId, @RequestBody AuthorDTO author) {
         Book book = null;

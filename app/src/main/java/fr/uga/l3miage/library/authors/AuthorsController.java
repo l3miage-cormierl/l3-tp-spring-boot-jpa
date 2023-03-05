@@ -25,14 +25,15 @@ public class AuthorsController {
     private final BookService bookService;
 
     @Autowired
-    public AuthorsController(AuthorService authorService, AuthorMapper authorMapper, BooksMapper booksMapper, BookService bookService) {
+    public AuthorsController(AuthorService authorService, AuthorMapper authorMapper, BooksMapper booksMapper,
+            BookService bookService) {
         this.authorService = authorService;
         this.authorMapper = authorMapper;
         this.booksMapper = booksMapper;
         this.bookService = bookService;
     }
 
-    /*Get all authors*/
+    /* Get all authors */
     @GetMapping("/authors")
     public Collection<AuthorDTO> authors(@RequestParam(value = "q", required = false) String query) {
         Collection<Author> authors;
@@ -46,10 +47,15 @@ public class AuthorsController {
                 .toList();
     }
 
-    /*Get an author*/
+    /* Get an author */
+    /*
+     * récupérer la liste des livres que l'auteur à écrit. Si la liste n'est pas
+     * vide alors il faut supprimer les livres avant
+     * bon apparement c'est déjà pris en compte
+     */
     @GetMapping("/authors/{id}")
     public AuthorDTO author(@PathVariable("id") Long id) {
-        Author author = null; 
+        Author author = null;
         try {
             author = authorService.get(id);
         } catch (EntityNotFoundException e) {
@@ -58,7 +64,7 @@ public class AuthorsController {
         return authorMapper.entityToDTO(author);
     }
 
-    /*Create an author*/
+    /* Create an author */
     @PostMapping("/authors")
     @ResponseStatus(HttpStatus.CREATED)
     public AuthorDTO newAuthor(@RequestBody AuthorDTO author) {
@@ -70,7 +76,7 @@ public class AuthorsController {
         return authorMapper.entityToDTO(authorTmp);
     }
 
-    /*Update an author*/
+    /* Update an author */
     @PutMapping("/authors/{id}")
     public AuthorDTO updateAuthor(@RequestBody AuthorDTO author, @PathVariable("id") Long id) {
         Author authorTmp = null;
@@ -86,7 +92,7 @@ public class AuthorsController {
         return authorMapper.entityToDTO(authorTmp);
     }
 
-    /*Delete an author*/
+    /* Delete an author */
     @DeleteMapping("/authors/{id}")
     public void deleteAuthor(@PathVariable("id") Long id) {
         try {
@@ -101,11 +107,16 @@ public class AuthorsController {
 
     }
 
-    /*Find all books for a given author, possibly filtered by name*/
+    /* Find all books for a given author, possibly filtered by name */
+    /*
+     * Requête pour récupérer la liste des livres associés à l'id de l'autheur donné
+     * en paramètre
+     */
     @GetMapping("/authors/{id}/books")
-    public Collection<BookDTO> books(@PathVariable("id") Long authorId, @RequestParam(value = "q", required = false) String query) {
-        Collection<Book> books; 
-        if(query == null){
+    public Collection<BookDTO> books(@PathVariable("id") Long authorId,
+            @RequestParam(value = "q", required = false) String query) {
+        Collection<Book> books;
+        if (query == null) {
             try {
                 books = bookService.getByAuthor(authorId);
             } catch (EntityNotFoundException e) {
@@ -121,18 +132,19 @@ public class AuthorsController {
         return booksMapper.entityToDTO(books);
     }
 
-    /* ANCIENNE VERSION, SANS LE FILTRE
-
-        @GetMapping("/authors/{id}/books")
-        public Collection<BookDTO> books(@PathVariable("id") Long authorId) {
-            Author author;
-            try {
-                author = authorService.get(authorId);
-            } catch (EntityNotFoundException e) {
-                throw new ResponseStatusException((HttpStatus.NOT_FOUND));
-            }
-            return booksMapper.entityToDTO(author.getBooks());
-        } 
-        
-    */
+    /*
+     * ANCIENNE VERSION, SANS LE FILTRE
+     * 
+     * @GetMapping("/authors/{id}/books")
+     * public Collection<BookDTO> books(@PathVariable("id") Long authorId) {
+     *  Author author;
+     *  try {
+     *      author = authorService.get(authorId);
+     *  } catch (EntityNotFoundException e) {
+     *      throw new ResponseStatusException((HttpStatus.NOT_FOUND));
+     *  }
+     *  return booksMapper.entityToDTO(author.getBooks());
+     * }
+     * 
+     */
 }
