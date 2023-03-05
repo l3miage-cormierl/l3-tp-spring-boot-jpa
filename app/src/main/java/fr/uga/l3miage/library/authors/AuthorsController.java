@@ -120,4 +120,19 @@ public class AuthorsController {
         }
         return booksMapper.entityToDTO(books);
     }
+
+    /* ANCIENNE VERSION, SANS LE FILTRE
+
+        @GetMapping("/authors/{id}/books")
+        public Collection<BookDTO> books(@PathVariable("id") Long authorId) {
+            Author author;
+            try {
+                author = authorService.get(authorId);
+            } catch (EntityNotFoundException e) {
+                throw new ResponseStatusException((HttpStatus.NOT_FOUND));
+            }
+            return booksMapper.entityToDTO(author.getBooks());
+        } 
+        
+    */
 }
